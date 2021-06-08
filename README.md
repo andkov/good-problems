@@ -1,2 +1,3 @@
-# quick-start
-Provides a quick start into a basic data analysis project
+# Good problems
+
+A curated collection of challenges related to working with data, graphs, and statistical models. 
