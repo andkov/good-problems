@@ -1,3 +1,27 @@
+library(ggplot2)
+ggplot2::theme_set(
+  ggplot2::theme_bw(
+  )+
+    theme(
+      strip.background = element_rect(fill="grey95", color = NA)
+    )
+)
+quick_save <- function(g,name,...){
+  ggplot2::ggsave(
+    filename = paste0(name,".jpg"),
+    plot     = g,
+    device   = "jpg",
+    path     = prints_folder,
+    # width    = width,
+    # height   = height,
+    # units = "cm",
+    dpi      = 'retina',
+    limitsize = FALSE,
+    ...
+  )
+}
+
+
 # print names and associated lables of variables (if attr(.,"label)) is present
 names_labels <- function(ds){
   dd <- as.data.frame(ds)
@@ -55,3 +79,4 @@ neat_DT <- function(x, filter_="top",...){
 }
 
 dt <- neat_DT
+print_all <- function(x){print(x,n=nrow(.))}
