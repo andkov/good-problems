@@ -46,7 +46,7 @@ ds0 <-
     4, 1 ,  97, NA,
     5, 1 ,  3, 97,
     6, 1 ,  NA, 2,
-    7, -7, NA, NA,
+    7, -7, -7, -7,
     8, 1 ,  97, 97,
   ) %>%
   mutate_all(as.integer)
@@ -58,22 +58,25 @@ ds0
 # Step 1: Isolate variables to be evaluated
 (ds1 <- ds0 %>% select(id, b4_resp1, b4_resp2))
 # define the pool of valid values (the rest  will be converted to NA)
-valids <- c(1,2,3,97)
+valid_responses <- c(1,2,3,97)
 item_names <- c("b4_resp1","b4_resp2")
 ds2 <-
   ds1 %>%
   tidyr::pivot_longer(cols = item_names) %>%
   mutate(
-    value_valid = value %in% valids # TRUE if target, FALSE if valid, but not target
+    value_valid = value %in% valid_responses # TRUE if target, FALSE if valid, but not target
     ,item_response = paste0("b4","_",value)
   ) %>%
   group_by(id, item_response) %>%
   ungroup()
-target; valids
+valid_responses
 ds2
 # make wide ds with indicators
 ds3 <-
   ds2 %>%
+  mutate(
+    value = ifelse(value %in% valid_responses, value, NA)
+  ) %>% 
   filter(!is.na(value)) %>%
   select(id, item_response, value_valid) %>%
   pivot_wider(names_from = item_response, values_from = value_valid, values_fn=max) %>%
@@ -124,6 +127,9 @@ augment_with_indicators <- function(
   # make wide ds with indicators
   d3 <-
     d2 %>%
+    mutate(
+      value = ifelse(value %in% valid_responses, value, NA)
+    ) %>% 
     filter(!is.na(value)) %>%
     select(!!!rlang::syms(c(id_name, "item_response", "value_valid"))) %>%
     # select(id, item_response, value_valid) %>%
