@@ -25,53 +25,137 @@ library(lubridate) # dates
 
 # ---- declare-functions -------------------------------------------------------
 
-prints_folder <- paste0("./analysis/003-either-or/prints/")
-if(!file.exists(prints_folder)){
-  dir.create(file.path(prints_folder))
-}
+
+
 
 # ---- load-data ---------------------------------------------------------------
-# Scenario: 6 individuals asked about fruit consumption the day before
-# Research Question 1: Wht
-
-# Q1 - Did you have lunch? (1 - yes, 2 - no, -7 - question no asked) 
-# Q1_resp1(2) - If you had lunch, what fruit did you eat? (select up to two)
-# Q2 - Did you have dinner?
-# Q2_resp1(2) - If you had dinner, what fruit did you eat? (select up to two)
-
-responses <- c("1" = "yes", "2" = "no", "-7" = "Q not asked")
+# consider a scenario in which a group of respondents asked a survey question
+# "Did you have lunch today?" (item `b4`)
+b4_responses <- c("1" = "yes", "2" = "no", "-7" = "Q not asked")
+# If "yes", then asked "What fruit did you eat with your lunch?"
+# recording responses into two items (`b4_resp1`,`b4_resp2`)
+# each with the following possible values: 
 fruit <- c("1" = "apple", "2" = "banana", "3" = "kiwi", "97" = "other")
+# the following data set stores a sample of responses
 ds0 <-
   tibble::tribble(
-  ~id, ~lunch, ~lunch1, ~lunch2,
-  1, 1 ,  1,  2,
-  2, 2 , NA, NA,
-  3, 1 ,  2, 1, 
-  4, 1 ,  97, NA,
-  5, 1 ,  3, NA, 
-  6, -7, NA, NA,
-  7, 2 ,  NA, NA,
-) %>% 
+    ~id, ~b4, ~b4_resp1, ~b4_resp2,
+    1, 1 ,  1,  2,
+    2, 2 , NA, NA,
+    3, 1 ,  2, 3,
+    4, 1 ,  97, NA,
+    5, 1 ,  3, 97,
+    6, 1 ,  NA, 2,
+    7, -7, NA, NA,
+    8, 1 ,  97, 97,
+  ) %>%
   mutate_all(as.integer)
+ds0
 
+# ---- solution-1-basic --------------------------------------------------------
 # of people who had lunch and provided at least one valid response
-# what percent of people had apple/banana/kiwi for lunch? 
-
-ds1 <-
-  ds0 %>% 
+# what percent of people had apple/banana/kiwi for lunch?
+# Step 1: Isolate variables to be evaluated
+(ds1 <- ds0 %>% select(id, b4_resp1, b4_resp2))
+# define the pool of valid values (the rest  will be converted to NA)
+valids <- c(1,2,3,97)
+item_names <- c("b4_resp1","b4_resp2")
+ds2 <-
+  ds1 %>%
+  tidyr::pivot_longer(cols = item_names) %>%
   mutate(
-    # apple = case_when( (lunch1==1 | lunch2 == 1) ~ TRUE)
-    # apple = case_when( any( c(lunch1, lunch2) %in% c(1,2,3,97)) ~ "valid fruit") 
-    apple = case_when( any( c(lunch1, lunch2)==-7 ) ~ "valid fruit") 
+    value_valid = value %in% valids # TRUE if target, FALSE if valid, but not target
+    ,item_response = paste0("b4","_",value)
+  ) %>%
+  group_by(id, item_response) %>%
+  ungroup()
+target; valids
+ds2
+# make wide ds with indicators
+ds3 <-
+  ds2 %>%
+  filter(!is.na(value)) %>%
+  select(id, item_response, value_valid) %>%
+  pivot_wider(names_from = item_response, values_from = value_valid, values_fn=max) %>%
+  mutate_at(
+    .vars = setdiff(names(.),"id")
+    ,.funs = as.logical
   )
-ds1
+ds3
+# join to the ds with raw responses
 
-a <- "A"
-b <- "B"
-v <- c(a,b)
-valid_set <- c("D","C")
-any(v %in% valid_set)
+ds4 <-
+  dplyr::left_join(
+    ds1
+    ,ds3
+    ,by = "id"
+  )
+ds4
 
+# ----- solution-1-functional --------------------------------------------------
+
+augment_with_indicators <- function(
+  d
+  ,item_names
+  ,valid_responses
+  ,id_name
+  ,item_stem
+  ,separator = "_"
+){
+  # d <- ds0
+  # item_names = c("b4_resp1", "b4_resp2")
+  # valid_responses = c(1,2,3,97)
+  # id_name = "id"
+  # item_stem = "b4"
+  # separator = "_"
+  
+  (d1 <- d %>% select( c(id_name, item_names) ) )
+  # define the pool of valid values (the rest  will be converted to NA)
+  # valids <- c(1,2,3,97)
+  # item_names <- c("b4_resp1","b4_resp2")
+  d2 <-
+    d1 %>%
+    tidyr::pivot_longer(cols = item_names) %>%
+    mutate(
+      value_valid = value %in% valid_responses # TRUE if target, FALSE if valid, but not target
+      ,item_response = paste0(item_stem,separator,value)
+    ) 
+  d2
+  # make wide ds with indicators
+  d3 <-
+    d2 %>%
+    filter(!is.na(value)) %>%
+    select(!!!rlang::syms(c(id_name, "item_response", "value_valid"))) %>%
+    # select(id, item_response, value_valid) %>%
+    pivot_wider(names_from = item_response, values_from = value_valid, values_fn=max) %>%
+    mutate_at(
+      .vars = setdiff(names(.),id_name)
+      ,.funs = as.logical
+    )
+  d3
+  # # join to the ds with raw responses
+
+  d4 <-
+    dplyr::left_join(
+      d
+      ,d3
+      ,by = id_name
+    )
+  d4
+}
+
+# how to use
+d_out <- 
+  ds0 %>% 
+  augment_with_indicators(
+    item_names = c("b4_resp1", "b4_resp2")
+    ,valid_responses = c(1,2,3,97)
+    ,id_name = "id"
+    ,item_stem = "b4"
+    ,separator = "_"
+)
+ds0
+d_out
 # ---- inspect-data ------------------------------------------------------------
 
 
