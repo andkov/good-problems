@@ -43,7 +43,7 @@ ds0 <-
     1, 1 ,  1,  2,
     2, 2 , NA, NA,
     3, 1 ,  2, 3,
-    4, 1 ,  97, NA,
+    4, 1 ,  97, -7,
     5, 1 ,  3, 97,
     6, 1 ,  NA, 2,
     7, -7, -7, -7,
@@ -71,6 +71,22 @@ ds2 <-
   ungroup()
 valid_responses
 ds2
+
+# if any of the items contain a valid response -> case is valid
+d_valid <- 
+  ds2 %>% 
+  # mutate(name = "b4") %>% 
+  select(id, value_valid) %>% 
+  group_by(id) %>% 
+  summarize(
+    value_valid = sum(value_valid, na.rm = T)>0L
+  ) %>% 
+  mutate(
+    name = "b4_valid"
+  ) %>% 
+  pivot_wider(names_from = "name", values_from = "value_valid")
+d_valid
+
 # make wide ds with indicators
 ds3 <-
   ds2 %>%
@@ -90,13 +106,17 @@ ds3
 ds4 <-
   dplyr::left_join(
     ds1
-    ,ds3
+    ,d_valid
+    ,by = "id"
+  ) %>% 
+  dplyr::left_join(
+    ds3
     ,by = "id"
   )
 ds4
 
 # ----- solution-1-functional --------------------------------------------------
-
+rm(ds1,ds2,ds3,ds4, ds_valid)
 augment_with_indicators <- function(
   d
   ,item_names
@@ -124,6 +144,23 @@ augment_with_indicators <- function(
       ,item_response = paste0(item_stem,separator,value)
     ) 
   d2
+  
+  
+  # if any of the items contain a valid response -> case is valid
+  d_valid <-
+    d2 %>%
+    # mutate(name = "b4") %>%
+    select(!!!rlang::syms(c(id_name, "value_valid"))) %>%
+    group_by(!!rlang::sym(id_name)) %>%
+    summarize(
+      value_valid = sum(value_valid, na.rm = T)>0L
+    ) %>%
+    mutate(
+      name = paste0(item_stem,separator,"valid")
+    ) %>%
+    pivot_wider(names_from = "name", values_from = "value_valid")
+  d_valid
+  
   # make wide ds with indicators
   d3 <-
     d2 %>%
@@ -131,14 +168,16 @@ augment_with_indicators <- function(
       value = ifelse(value %in% valid_responses, value, NA)
     ) %>% 
     filter(!is.na(value)) %>%
-    select(!!!rlang::syms(c(id_name, "item_response", "value_valid"))) %>%
-    # select(id, item_response, value_valid) %>%
-    pivot_wider(names_from = item_response, values_from = value_valid, values_fn=max) %>%
+    select(!!!rlang::syms(c(id_name, "item_response", "value_valid"))) %>% 
+    pivot_wider(names_from = item_response, values_from = value_valid, values_fn=max,values_fill = FALSE) %>%
     mutate_at(
       .vars = setdiff(names(.),id_name)
       ,.funs = as.logical
     )
   d3
+  
+
+  
   # # join to the ds with raw responses
 
   d4 <-
@@ -146,13 +185,16 @@ augment_with_indicators <- function(
       d
       ,d3
       ,by = id_name
-    )
+    ) 
   d4
+  
+  return(d4)
+  
 }
 
 # how to use
-d_out <- 
-  ds0 %>% 
+ds0
+ds0 %>% 
   augment_with_indicators(
     item_names = c("b4_resp1", "b4_resp2")
     ,valid_responses = c(1,2,3,97)
@@ -160,8 +202,7 @@ d_out <-
     ,item_stem = "b4"
     ,separator = "_"
 )
-ds0
-d_out
+
 # ---- inspect-data ------------------------------------------------------------
 
 
