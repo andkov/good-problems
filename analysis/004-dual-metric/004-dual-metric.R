@@ -87,9 +87,9 @@ ds2 <-
     )
    ,item_order = case_when(
       # name %in% c("b4_response1","b4_rating1") ~ 1
-      name %in% pair1 ~ 1
+      name %in% item_names[["pair1"]]  ~ 1
       # ,name %in% c("b4_response2","b4_rating2") ~ 2
-      name %in% pair1 ~ 2
+      ,name %in% item_names[["pair2"]] ~ 2
       # add more lines if more that two pairs
       # TODO: figure out a way to automate for list of N pairs
     )
@@ -108,11 +108,12 @@ transform_response_rating <- function(
   ,item_names # list of the form: list(c("response1","rating1"),c("response2","rating2"),...)
   ,id_name
 ){
-  # d <- ds0
-  # (item_names <- list(c("b4_response1","b4_rating1"),c("b4_response2","b4_rating2")))
-  # id_name = "id"
-  # all_relevant_vars <- c(id_name, unlist(item_names))
+  d <- ds0
+  (item_names <- list(c("b4_response1","b4_rating1"),c("b4_response2","b4_rating2")))
+  id_name = "id"
   
+  
+  all_relevant_vars <- c(id_name, unlist(item_names))
   d1 <- d %>% select(all_relevant_vars)
   names(item_names) <- paste0("pair",seq_along(item_names))
   item_names
