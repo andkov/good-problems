@@ -33,13 +33,13 @@ library(lubridate) # dates
 # "Did you have lunch today?" (item `b4`)
 b4_responses <- c("1" = "yes", "2" = "no", "-7" = "Q not asked")
 # If "yes", then asked "What fruit did you eat with your lunch?"
-# recording responses into two items (`b4_resp1`,`b4_resp2`)
+# recording responses into two items (`b4_response1`,`b4_response2`)
 # each with the following possible values: 
 fruit <- c("1" = "apple", "2" = "banana", "3" = "kiwi", "97" = "other")
 # the following data set stores a sample of responses
 ds0 <-
   tibble::tribble(
-    ~id, ~b4, ~b4_resp1, ~b4_resp2,
+    ~id, ~b4, ~b4_response1, ~b4_response2,
     1, 1 ,  1,  2,
     2, 2 , NA, NA,
     3, 1 ,  2, 3,
@@ -56,10 +56,10 @@ ds0
 # of people who had lunch and provided at least one valid response
 # what percent of people had apple/banana/kiwi for lunch?
 # Step 1: Isolate variables to be evaluated
-(ds1 <- ds0 %>% select(id, b4_resp1, b4_resp2))
+(ds1 <- ds0 %>% select(id, b4_response1, b4_response2))
 # define the pool of valid values (the rest  will be converted to NA)
 valid_responses <- c(1,2,3,97)
-item_names <- c("b4_resp1","b4_resp2")
+item_names <- c("b4_response1","b4_response2")
 ds2 <-
   ds1 %>%
   tidyr::pivot_longer(cols = item_names) %>%
@@ -125,17 +125,17 @@ augment_with_indicators <- function(
   ,item_stem
   ,separator = "_"
 ){
-  # d <- ds0
-  # item_names = c("b4_resp1", "b4_resp2")
-  # valid_responses = c(1,2,3,97)
-  # id_name = "id"
-  # item_stem = "b4"
-  # separator = "_"
+  d <- ds0
+  item_names = c("b4_response1", "b4_response2")
+  valid_responses = c(1,2,3,97)
+  id_name = "id"
+  item_stem = "b4"
+  separator = "_"
   
   (d1 <- d %>% select( c(id_name, item_names) ) )
   # define the pool of valid values (the rest  will be converted to NA)
   # valids <- c(1,2,3,97)
-  # item_names <- c("b4_resp1","b4_resp2")
+  # item_names <- c("b4_response1","b4_response2")
   d2 <-
     d1 %>%
     tidyr::pivot_longer(cols = item_names) %>%
@@ -196,7 +196,7 @@ augment_with_indicators <- function(
 ds0
 ds0 %>% 
   augment_with_indicators(
-    item_names = c("b4_resp1", "b4_resp2")
+    item_names = c("b4_response1", "b4_response2")
     ,valid_responses = c(1,2,3,97)
     ,id_name = "id"
     ,item_stem = "b4"
