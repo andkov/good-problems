@@ -146,20 +146,20 @@ augment_with_indicators <- function(
   d2
   
   
-  # if any of the items contain a valid response -> case is valid
-  d_valid <-
-    d2 %>%
-    # mutate(name = "b4") %>%
-    select(!!!rlang::syms(c(id_name, "value_valid"))) %>%
-    group_by(!!rlang::sym(id_name)) %>%
-    summarize(
-      value_valid = sum(value_valid, na.rm = T)>0L
-    ) %>%
-    mutate(
-      name = paste0(item_stem,separator,"valid")
-    ) %>%
-    pivot_wider(names_from = "name", values_from = "value_valid")
-  d_valid
+  # # if any of the items contain a valid response -> case is valid
+  # d_valid <-
+  #   d2 %>%
+  #   # mutate(name = "b4") %>%
+  #   select(!!!rlang::syms(c(id_name, "value_valid"))) %>%
+  #   group_by(!!rlang::sym(id_name)) %>%
+  #   summarize(
+  #     value_valid = sum(value_valid, na.rm = T)>0L
+  #   ) %>%
+  #   mutate(
+  #     name = paste0(item_stem,separator,"valid")
+  #   ) %>%
+  #   pivot_wider(names_from = "name", values_from = "value_valid")
+  # d_valid
   
   # make wide ds with indicators
   d3 <-
