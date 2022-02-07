@@ -128,13 +128,13 @@ make_indicator_responses_ratings <- function(
   ,item_stem
   ,separator = "_"
 ){
-  d <- ds0
-  (item_names <- list(c("b4_response1","b4_rating1"),c("b4_response2","b4_rating2")))
-  valid_responses = c(1,2,3,97)
-  valid_ratings   = c(1,2,3,4,5)
-  id_name = "id"
-  item_stem = "b4"
-  separator = "_"
+  # d <- ds0
+  # (item_names <- list(c("b4_response1","b4_rating1"),c("b4_response2","b4_rating2")))
+  # valid_responses = c(1,2,3,97)
+  # valid_ratings   = c(1,2,3,4,5)
+  # id_name = "id"
+  # item_stem = "b4"
+  # separator = "_"
   
   # compute values to be used in operations
   all_relevant_vars <- c(id_name, unlist(item_names))
@@ -180,6 +180,7 @@ make_indicator_responses_ratings <- function(
     mutate(
       response = case_when(response %in% valid_responses ~ response)
       ,rating  =  case_when(rating %in% valid_ratings ~ rating)
+      # ,response_valid = case_when(response %in% valid_responses ~ TRUE,TRUE ~ FALSE)
     ) %>% 
     # remove if provided save value for all responses
     group_by(!!rlang::sym(id_name)) %>% 
@@ -190,12 +191,13 @@ make_indicator_responses_ratings <- function(
     filter(!same_responses) %>%  # the order of filer is important!
     filter(!is.na(response)) %>% # the order of filer is important!
     mutate(
-      rating_binary = case_when(
-        rating %in% c(1,2) ~ TRUE
-        ,rating %in% c(3,4,5) ~ FALSE
-        # ,TRUE ~ NA_integer_
-      )
-      ,item_response = paste0(item_stem,separator,response)
+      # rating_binary = case_when(
+      #   rating %in% c(1,2) ~ TRUE
+      #   ,rating %in% c(3,4,5) ~ FALSE
+      #   # ,TRUE ~ NA_integer_
+      # )
+      # ,item_response = paste0(item_stem,separator,response_valid)
+      item_response = paste0(item_stem,separator,response)
     ) 
   d3
   
@@ -203,19 +205,22 @@ make_indicator_responses_ratings <- function(
     d3 %>% 
     select(c(id_name, item_response, response)) %>% 
     mutate(
-      name = paste0(item_response, "_response")
+      # name = paste0(item_response, "_response")
+      name = paste0(item_response, "_a")
     ) %>%
-    select(-item_response) %>% 
-    pivot_wider(names_from = "name", values_from = "response", values_fn=is.integer)
+    select(-item_response) %>%
+    pivot_wider(names_from = "name", values_from = "response",
+                values_fn=is.integer, values_fill = FALSE)
  d3_response #%>% View()
  d3_rating <- 
    d3 %>% 
    select(c(id_name, item_response, rating)) %>% 
    mutate(
-     name = paste0(item_response, "_rating")
+     # name = paste0(item_response, "_rating")
+     name = paste0(item_response, "_b")
    ) %>% 
     select(-item_response) %>% 
-   pivot_wider(names_from = "name", values_from = "rating")
+   pivot_wider(names_from = "name", values_from = "rating", values_fill = -99)
  d3_rating 
  
  d4 <- 
@@ -228,7 +233,7 @@ make_indicator_responses_ratings <- function(
      d3_rating
      ,by = id_name
    )
-  
+  d4
   
   # make wide ds with indicators
   d3 <-
@@ -264,14 +269,14 @@ make_indicator_responses_ratings <- function(
 # how to use
 ds0
 ds0 %>% 
-  augment_with_indicators(
+  make_indicator_responses_ratings(
     item_names = c("b4_response1", "b4_response2")
     ,valid_responses = c(1,2,3,97)
     ,id_name = "id"
     ,item_stem = "b4"
     ,separator = "_"
   ) %>% 
-  augment_with_indicators(
+  make_indicator_responses_ratings(
     item_names = c("b4_rating1", "b4_rating2")
     ,valid_responses = c(1,2,3,4,5)
     ,id_name = "id"
