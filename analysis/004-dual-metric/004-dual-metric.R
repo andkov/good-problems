@@ -98,7 +98,63 @@ ds1
 
 
 # ----- solution-1-functional --------------------------------------------------
+transform_response_rating <- function(
+  d
+  ,item_names # list of the form: list(c("response1","rating1"),c("response2","rating2"),...)
+  ,id_name
+){
+  # d <- ds0
+  # (item_names <- list(c("b4_response1","b4_rating1"),c("b4_response2","b4_rating2")))
+  # id_name = "id"
+  
+  all_relevant_vars <- c(id_name, unlist(item_names))
+  d1 <- d %>% select(all_relevant_vars)
+  names(item_names) <- paste0("pair",seq_along(item_names))
+  item_names
+  response_names <- c(); rating_names <- c()
+  for(i in seq_along(item_names)){
+    response_names[i] <- item_names[[i]][1]#  first position in the pair
+    rating_names[i] <- item_names[[i]][2]  # second position in the pair
+  }
+  response_names
+  rating_names
+  
+  d2 <-
+    d1 %>%
+    tidyr::pivot_longer(-c(id_name) ) %>%
+    mutate(
+      item_type = case_when(
+        # name %in% c("b4_response1","b4_response2") ~ "response"
+        name %in% response_names ~ "response"
+        # ,name %in% c("b4_rating1","b4_rating2") ~ "rating"
+        ,name %in% rating_names ~ "rating"
+      )
+      ,item_order = case_when(
+        # name %in% c("b4_response1","b4_rating1") ~ 1
+        name %in% item_names[["pair1"]] ~ 1
+        # ,name %in% c("b4_response2","b4_rating2") ~ 2
+        ,name %in% item_names[["pair2"]] ~ 2
+        # add more lines if more that two pairs
+        # TODO: figure out a way to automate for list of N pairs
+      )
+    ) %>%
+    select(-name) %>%
+    pivot_wider(names_from = "item_type", values_from = "value")
+  d1
+  d2
+  
+  return(d2)
+  
+}
 
+# how to use
+ds0
+ds0 %>%
+  transform_response_rating(
+    item_names <-  list(c("b4_response1","b4_rating1"),c("b4_response2","b4_rating2"))
+    ,id_name = "id"
+  )
+  
 
 # ---- inspect-data ------------------------------------------------------------
 
