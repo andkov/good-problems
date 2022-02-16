@@ -3,6 +3,7 @@
   <meta charset="utf-8">
   <meta name="generator" content="quarto-0.2.360">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="author" content="Andriy Koval">
   <title>003-dual-response</title>
   <style>
     code{white-space: pre-wrap;}
@@ -99,7 +100,10 @@
 <ul>
 <li><a href="#scenario" class="nav-link active" data-scroll-target="#scenario"> <span class="header-section-number">1</span> Scenario</a></li>
 <li><a href="#problem" class="nav-link" data-scroll-target="#problem"> <span class="header-section-number">2</span> Problem</a></li>
-<li><a href="#solution-1" class="nav-link" data-scroll-target="#solution-1"> <span class="header-section-number">3</span> Solution 1</a></li>
+<li><a href="#solution-1" class="nav-link" data-scroll-target="#solution-1"> <span class="header-section-number">3</span> Solution 1</a>
+<ul class="collapse">
+<li><a href="#step-1" class="nav-link" data-scroll-target="#step-1"> <span class="header-section-number">3.1</span> Step 1</a></li>
+</ul></li>
 <li><a href="#solution-2" class="nav-link" data-scroll-target="#solution-2"> <span class="header-section-number">4</span> Solution 2</a></li>
 <li><a href="#session-info" class="nav-link" data-scroll-target="#session-info"> <span class="header-section-number">5</span> Session Information</a></li>
 </ul>
@@ -108,23 +112,25 @@
 <main class="content">
 <header id="title-block-header">
 <h1 class="title display-7">003-dual-response</h1>
+<p class="author">Andriy Koval</p>
+<p class="date">Last Updated: 2022-02-16</p>
 </header>
 
 <div class="cell">
 
 </div>
 <div class="cell">
-<div class="sourceCode" id="cb1"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../../scripts/common-functions.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
 </div>
 <div class="cell">
-<div class="sourceCode" id="cb2"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(magrittr)  <span class="co"># pipes</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)     <span class="co"># data wrangling</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)   <span class="co"># graphs</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)   <span class="co"># tidy data</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)     <span class="co"># data wrangling</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(forcats)   <span class="co"># factors</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)   <span class="co"># strings</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate) <span class="co"># dates</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(magrittr)  <span class="co"># pipes</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)     <span class="co"># data wrangling</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)   <span class="co"># graphs</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)   <span class="co"># tidy data</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)     <span class="co"># data wrangling</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(forcats)   <span class="co"># factors</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)   <span class="co"># strings</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate) <span class="co"># dates</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
 
@@ -155,7 +161,20 @@
 8     8     1           97           97</code></pre>
 </div>
 </div>
-<p>Where item <code>b4</code> stores response values for Question 1 and <code>b4_response1</code> and <code>b4_response2</code> store response values for Question 2.</p>
+<p>Where item <code>b4</code> stores response values for Question 1 and items <code>b4_response1</code> and <code>b4_response2</code> store response values for Question 2. The names of items and response coding were designed to simulate a realistic scenario. Numerical codes could be assigned descriptive labels to aid interpretation,</p>
+<div class="cell">
+<div class="sourceCode" id="cb3"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>b4_responses <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"1"</span> <span class="ot">=</span> <span class="st">"yes"</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  , <span class="st">"2"</span> <span class="ot">=</span> <span class="st">"no"</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  ,<span class="st">"-7"</span> <span class="ot">=</span> <span class="st">"Q not asked"</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>fruit <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"1"</span> <span class="ot">=</span> <span class="st">"apple"</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  , <span class="st">"2"</span> <span class="ot">=</span> <span class="st">"banana"</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  , <span class="st">"3"</span> <span class="ot">=</span> <span class="st">"kiwi"</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  ,<span class="st">"97"</span> <span class="ot">=</span> <span class="st">"other"</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <div class="cell">
 <div class="cell-output-stdout">
 <pre><code># A tibble: 8 x 4
@@ -171,21 +190,187 @@
 8     8 yes         other        other       </code></pre>
 </div>
 </div>
+<p>However, there are advantages to working with responses as integers, so we</p>
 </section>
 <section id="problem" class="level1" data-number="2">
 <h1 data-number="2"><span class="header-section-number">2</span> Problem</h1>
+<blockquote class="blockquote">
+<p>Design the function named <code>augment_with_indicators()</code> for transforming items that provide two response slots into a set of indicator variable.</p>
+</blockquote>
+<p>The target function should take arguments and return output demonstrated next:</p>
 <div class="cell">
-
+<div class="sourceCode" id="cb5"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>ds0 <span class="sc">%&gt;%</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">augment_with_indicators</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">item_names       =</span> <span class="fu">c</span>(<span class="st">"b4_response1"</span>, <span class="st">"b4_response2"</span>) <span class="co"># item names</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    ,<span class="at">valid_responses =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">97</span>) <span class="co"># all others = non-response</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    ,<span class="at">id_name         =</span> <span class="st">"id"</span> <span class="co"># unique row</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    ,<span class="at">item_stem       =</span> <span class="st">"b4"</span> <span class="co"># stem for creating new items</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    ,<span class="at">separator       =</span> <span class="st">"_"</span>  </span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code># A tibble: 8 x 8
+     id    b4 b4_response1 b4_response2 b4_1  b4_2  b4_3  b4_97
+  &lt;int&gt; &lt;int&gt;        &lt;int&gt;        &lt;int&gt; &lt;lgl&gt; &lt;lgl&gt; &lt;lgl&gt; &lt;lgl&gt;
+1     1     1            1            2 TRUE  TRUE  FALSE FALSE
+2     2     2           NA           NA NA    NA    NA    NA   
+3     3     1            2            3 FALSE TRUE  TRUE  FALSE
+4     4     1           97           -7 FALSE FALSE FALSE TRUE 
+5     5     1            3           97 FALSE FALSE TRUE  TRUE 
+6     6     1           NA            2 FALSE TRUE  FALSE FALSE
+7     7    -7           -7           -7 NA    NA    NA    NA   
+8     8     1           97           97 FALSE FALSE FALSE TRUE </code></pre>
+</div>
 </div>
 </section>
 <section id="solution-1" class="level1" data-number="3">
 <h1 data-number="3"><span class="header-section-number">3</span> Solution 1</h1>
+<section id="step-1" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="step-1"><span class="header-section-number">3.1</span> Step 1</h2>
 <div class="cell">
 
 </div>
+<div class="cell">
+<div class="sourceCode" id="cb7"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># of people who had lunch and provided at least one valid response</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># what percent of people had apple/banana/kiwi for lunch?</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: Isolate variables to be evaluated</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>(ds1 <span class="ot">&lt;-</span> ds0 <span class="sc">%&gt;%</span> <span class="fu">select</span>(id, b4_response1, b4_response2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code># A tibble: 8 x 3
+     id b4_response1 b4_response2
+  &lt;int&gt;        &lt;int&gt;        &lt;int&gt;
+1     1            1            2
+2     2           NA           NA
+3     3            2            3
+4     4           97           -7
+5     5            3           97
+6     6           NA            2
+7     7           -7           -7
+8     8           97           97</code></pre>
+</div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># define the pool of valid values (the rest  will be converted to NA)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>valid_responses <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">97</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>item_names <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"b4_response1"</span>,<span class="st">"b4_response2"</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>ds2 <span class="ot">&lt;-</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  ds1 <span class="sc">%&gt;%</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">pivot_longer</span>(<span class="at">cols =</span> item_names) <span class="sc">%&gt;%</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">value_valid =</span> value <span class="sc">%in%</span> valid_responses <span class="co"># TRUE if target, FALSE if valid, but not target</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    ,<span class="at">item_response =</span> <span class="fu">paste0</span>(<span class="st">"b4"</span>,<span class="st">"_"</span>,value)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(id, item_response) <span class="sc">%&gt;%</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>valid_responses</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code>[1]  1  2  3 97</code></pre>
+</div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>ds2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code># A tibble: 16 x 5
+      id name         value value_valid item_response
+   &lt;int&gt; &lt;chr&gt;        &lt;int&gt; &lt;lgl&gt;       &lt;chr&gt;        
+ 1     1 b4_response1     1 TRUE        b4_1         
+ 2     1 b4_response2     2 TRUE        b4_2         
+ 3     2 b4_response1    NA FALSE       b4_NA        
+ 4     2 b4_response2    NA FALSE       b4_NA        
+ 5     3 b4_response1     2 TRUE        b4_2         
+ 6     3 b4_response2     3 TRUE        b4_3         
+ 7     4 b4_response1    97 TRUE        b4_97        
+ 8     4 b4_response2    -7 FALSE       b4_-7        
+ 9     5 b4_response1     3 TRUE        b4_3         
+10     5 b4_response2    97 TRUE        b4_97        
+11     6 b4_response1    NA FALSE       b4_NA        
+12     6 b4_response2     2 TRUE        b4_2         
+13     7 b4_response1    -7 FALSE       b4_-7        
+14     7 b4_response2    -7 FALSE       b4_-7        
+15     8 b4_response1    97 TRUE        b4_97        
+16     8 b4_response2    97 TRUE        b4_97        </code></pre>
+</div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># if any of the items contain a valid response -&gt; case is valid</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>d_valid <span class="ot">&lt;-</span> </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  ds2 <span class="sc">%&gt;%</span> </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># mutate(name = "b4") %&gt;% </span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, value_valid) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(id) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">value_valid =</span> <span class="fu">sum</span>(value_valid, <span class="at">na.rm =</span> T)<span class="sc">&gt;</span>0L</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"b4_valid"</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> <span class="st">"name"</span>, <span class="at">values_from =</span> <span class="st">"value_valid"</span>)</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>d_valid</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code># A tibble: 8 x 2
+     id b4_valid
+  &lt;int&gt; &lt;lgl&gt;   
+1     1 TRUE    
+2     2 FALSE   
+3     3 TRUE    
+4     4 TRUE    
+5     5 TRUE    
+6     6 TRUE    
+7     7 FALSE   
+8     8 TRUE    </code></pre>
+</div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># make wide ds with indicators</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>ds3 <span class="ot">&lt;-</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  ds2 <span class="sc">%&gt;%</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">value =</span> <span class="fu">ifelse</span>(value <span class="sc">%in%</span> valid_responses, value, <span class="cn">NA</span>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(value)) <span class="sc">%&gt;%</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, item_response, value_valid) <span class="sc">%&gt;%</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> item_response, <span class="at">values_from =</span> value_valid, <span class="at">values_fn=</span>max) <span class="sc">%&gt;%</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_at</span>(</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">.vars =</span> <span class="fu">setdiff</span>(<span class="fu">names</span>(.),<span class="st">"id"</span>)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    ,<span class="at">.funs =</span> as.logical</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>ds3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code># A tibble: 6 x 5
+     id b4_1  b4_2  b4_3  b4_97
+  &lt;int&gt; &lt;lgl&gt; &lt;lgl&gt; &lt;lgl&gt; &lt;lgl&gt;
+1     1 TRUE  TRUE  NA    NA   
+2     3 NA    TRUE  TRUE  NA   
+3     4 NA    NA    NA    TRUE 
+4     5 NA    NA    TRUE  TRUE 
+5     6 NA    TRUE  NA    NA   
+6     8 NA    NA    NA    TRUE </code></pre>
+</div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># join to the ds with raw responses</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>ds4 <span class="ot">&lt;-</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    ds1</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    ,d_valid</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    ,<span class="at">by =</span> <span class="st">"id"</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">left_join</span>(</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    ds3</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    ,<span class="at">by =</span> <span class="st">"id"</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>ds4</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code># A tibble: 8 x 8
+     id b4_response1 b4_response2 b4_valid b4_1  b4_2  b4_3  b4_97
+  &lt;int&gt;        &lt;int&gt;        &lt;int&gt; &lt;lgl&gt;    &lt;lgl&gt; &lt;lgl&gt; &lt;lgl&gt; &lt;lgl&gt;
+1     1            1            2 TRUE     TRUE  TRUE  NA    NA   
+2     2           NA           NA FALSE    NA    NA    NA    NA   
+3     3            2            3 TRUE     NA    TRUE  TRUE  NA   
+4     4           97           -7 TRUE     NA    NA    NA    TRUE 
+5     5            3           97 TRUE     NA    NA    TRUE  TRUE 
+6     6           NA            2 TRUE     NA    TRUE  NA    NA   
+7     7           -7           -7 FALSE    NA    NA    NA    NA   
+8     8           97           97 TRUE     NA    NA    NA    TRUE </code></pre>
+</div>
+</div>
+</section>
 </section>
 <section id="solution-2" class="level1" data-number="4">
 <h1 data-number="4"><span class="header-section-number">4</span> Solution 2</h1>
+<div class="cell">
+
+</div>
 <div class="cell">
 
 </div>
@@ -235,11 +420,14 @@
  ggplot2     * 3.3.5   2021-06-25 [1] CRAN (R 4.1.2)
  glue          1.5.1   2021-11-30 [1] CRAN (R 4.1.2)
  gtable        0.3.0   2019-03-25 [1] CRAN (R 4.1.2)
+ haven         2.4.3   2021-08-04 [1] CRAN (R 4.1.2)
+ hms           1.1.1   2021-09-26 [1] CRAN (R 4.1.2)
  htmltools     0.5.2   2021-08-25 [1] CRAN (R 4.1.2)
  htmlwidgets   1.5.4   2021-09-08 [1] CRAN (R 4.1.2)
  janitor     * 2.1.0   2021-01-05 [1] CRAN (R 4.1.2)
  jsonlite      1.7.2   2020-12-09 [1] CRAN (R 4.1.2)
  knitr         1.36    2021-09-29 [1] CRAN (R 4.1.2)
+ labelled      2.9.0   2021-10-29 [1] CRAN (R 4.1.2)
  lifecycle     1.0.1   2021-09-24 [1] CRAN (R 4.1.2)
  lubridate   * 1.8.0   2021-10-07 [1] CRAN (R 4.1.2)
  magrittr    * 2.0.1   2020-11-17 [1] CRAN (R 4.1.2)
@@ -285,7 +473,7 @@
 <div class="cell">
 
 </div>
-<p>Report rendered by Andriy at 2022-02-16, 08:54 -0700 in 2 seconds.</p>
+<p>Report rendered by Andriy at 2022-02-16, 09:38 -0700 in 2 seconds.</p>
 </section>
 </main>
 <!-- /main column -->
