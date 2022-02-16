@@ -4,10 +4,13 @@ author: "Andriy Koval"
 date: "Last Updated: `r Sys.Date()`"
 format:
   html:
-    theme: spacelab
+    theme: sandstone
+    highlight: tango
     toc: true
     number-sections: true
     self-contained: true
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r set_options, echo=F}
@@ -37,14 +40,7 @@ source("../../scripts/common-functions.R")
 ```
 
 ```{r load-packages}
-library(magrittr)  # pipes
-library(dplyr)     # data wrangling
-library(ggplot2)   # graphs
-library(janitor)   # tidy data
-library(tidyr)     # data wrangling
-library(forcats)   # factors
-library(stringr)   # strings
-library(lubridate) # dates
+library(tidyverse)
 ```
 
 ```{r declare-globals, echo=FALSE}
@@ -84,7 +80,12 @@ augment_with_indicators <- function(
     ) %>% 
     filter(!is.na(value)) %>%
     select(!!!rlang::syms(c(id_name, "item_response", "value_valid"))) %>% 
-    pivot_wider(names_from = item_response, values_from = value_valid, values_fn=max,values_fill = FALSE) %>%
+    pivot_wider(
+      names_from   = item_response
+      ,values_from = value_valid
+      ,values_fn   = max
+      ,values_fill = FALSE
+    ) %>%
     mutate_at(
       .vars = setdiff(names(.),id_name)
       ,.funs = as.logical
@@ -130,12 +131,13 @@ ds0 <-
     6,  1 ,  NA  ,2  ,
     7, -7 ,  -7  ,-7 ,
     8,  1 ,  97  ,97 ,
+    9,  1 ,  NA  ,NA ,
   ) %>%
   mutate_all(as.integer)
 ds0 
 ```
 
-Where item `b4` stores response values for Question 1 and items `b4_response1` and `b4_response2` store response values for Question 2. The names of items and response coding were designed to simulate a realistic scenario. Numerical codes could be assigned descriptive labels to aid interpretation,
+Where item `b4` stores response values for Question 1 and items `b4_response1` and `b4_response2` store response values for Question 2. The names of items and response coding were designed to simulate a realistic scenario. Numerical codes could be assigned descriptive labels to aid interpretation, as shown in the example below
 
 ```{r}
 b4_responses <- c(
@@ -170,13 +172,13 @@ labelled::var_label(ds1) <- list(
 ds1
 ```
 
-However, there are advantages to working with responses as integers, so we
+In this scenario, however, we will engage unlabeled data, as it presents some advantages.
 
 # Problem
 
-> Design the function named `augment_with_indicators()` for transforming items that provide two response slots into a set of indicator variable.
+> Design the function named `augment_with_indicators()` for transforming items that provide two response slots into a set of binary indicator variables, one for each response value.
 
-The target function should take arguments and return output demonstrated next:
+The target function should take arguments and return output as demonstrated below: 
 
 ```{r echo = TRUE, results='show', message=message_chunks}
 
@@ -190,22 +192,23 @@ ds0 %>%
 )
 ```
 
+This data structure allows us to answer the following type of questions
+
+> What proportion of respondents had at least one type of fruit for lunch?
+
 # Solution 1
 
-## Step 1
+Before attempting to design a function for solving a general task of this type, let us work through this problem with a hard-coded solution
 
-```{r}
 
-```
+Isolate variables to be evaluated and pivot the data to produce a response-level records
 
 ```{r  echo = TRUE, results='show', message=message_chunks}
-# of people who had lunch and provided at least one valid response
-# what percent of people had apple/banana/kiwi for lunch?
-# Step 1: Isolate variables to be evaluated
 (ds1 <- ds0 %>% select(id, b4_response1, b4_response2))
 # define the pool of valid values (the rest  will be converted to NA)
-valid_responses <- c(1,2,3,97)
-item_names <- c("b4_response1","b4_response2")
+(valid_responses <- c(1,2,3,97))
+item_names     <- c("b4_response1","b4_response2")
+
 ds2 <-
   ds1 %>%
   tidyr::pivot_longer(cols = item_names) %>%
@@ -215,25 +218,14 @@ ds2 <-
   ) %>%
   group_by(id, item_response) %>%
   ungroup()
-valid_responses
+
 ds2
+```
 
-# if any of the items contain a valid response -> case is valid
-d_valid <- 
-  ds2 %>% 
-  # mutate(name = "b4") %>% 
-  select(id, value_valid) %>% 
-  group_by(id) %>% 
-  summarize(
-    value_valid = sum(value_valid, na.rm = T)>0L
-  ) %>% 
-  mutate(
-    name = "b4_valid"
-  ) %>% 
-  pivot_wider(names_from = "name", values_from = "value_valid")
-d_valid
+In this _response-level_ form we can evaluate (column  `value_valid`) whether each response value belongs to the set of valid values which we defined as `r valid_responses`. 
 
-# make wide ds with indicators
+The `ds2` form allows us to pivot the data, creating a column for each unique values of the response:
+```{r  echo = TRUE, results='show', message=message_chunks}
 ds3 <-
   ds2 %>%
   mutate(
@@ -247,12 +239,34 @@ ds3 <-
     ,.funs = as.logical
   )
 ds3
-# join to the ds with raw responses
+```
 
+Now let's create a stand-along tibble that will contain a _person-level_ summary, answering the question 
+> Does the response vector contain at least one valid value? 
+
+```{r  echo = TRUE, results='show', message=message_chunks}
+ds_valid <- 
+  ds2 %>%  # !!!
+  select(id, value_valid) %>% 
+  group_by(id) %>% 
+  summarize(
+    value_valid = sum(value_valid, na.rm = T)>0L # at least one valid
+  ) %>% 
+  mutate(
+    name = "b4_valid"
+  ) %>% 
+  pivot_wider(names_from = "name", values_from = "value_valid")
+ds_valid
+```
+The substantive interpretation of this table answer the question
+> Did ther respondent have at least one fruit for lunch? 
+
+Now we can combine `ds_valid` and `ds3` into a single tibble that meets our target requirements
+```{r  echo = TRUE, results='show', message=message_chunks}
 ds4 <-
   dplyr::left_join(
     ds1
-    ,d_valid
+    ,ds_valid
     ,by = "id"
   ) %>% 
   dplyr::left_join(
@@ -264,12 +278,21 @@ ds4
 
 # Solution 2
 
-```{r define-function, echo=T}
-
+Now let's examine the functional solution to solve this type of task
+```{r echo=T}
+print(augment_with_indicators)
 ```
 
-```{r graph-2, echo = echo_chunks, results='show', message=message_chunks}
-
+```{r echo = TRUE, results='show', message=message_chunks}
+ds0
+ds0 %>% 
+  augment_with_indicators(
+    item_names       = c("b4_response1", "b4_response2") # item names
+    ,valid_responses = c(1,2,3,97) # all others = non-response
+    ,id_name         = "id" # unique row
+    ,item_stem       = "b4" # stem for creating new items
+    ,separator       = "_"  
+)
 ```
 
 # Session Information {#session-info}
