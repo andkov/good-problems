@@ -9,6 +9,7 @@ format:
     toc: true
     number-sections: true
     self-contained: true
+    code-fold: show 
 editor_options: 
   chunk_output_type: console
 ---
@@ -224,7 +225,8 @@ ds2
 
 In this _response-level_ form we can evaluate (column  `value_valid`) whether each response value belongs to the set of valid values which we defined as `r valid_responses`. 
 
-The `ds2` form allows us to pivot the data, creating a column for each unique values of the response:
+The `ds2` form allows us to pivot the data, creating a column for each unique values of the response
+
 ```{r  echo = TRUE, results='show', message=message_chunks}
 ds3 <-
   ds2 %>%
@@ -240,7 +242,6 @@ ds3 <-
   )
 ds3
 ```
-
 Now let's create a stand-along tibble that will contain a _person-level_ summary, answering the question 
 > Does the response vector contain at least one valid value? 
 
