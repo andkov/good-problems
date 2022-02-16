@@ -7,8 +7,6 @@ format:
     number-sections: true
 ---
 
-
-
 ```{r set_options, echo=F}
 # cat("Working directory: ", getwd()) # turn on to test the location
 report_render_start_time <- Sys.time()
@@ -31,39 +29,11 @@ options(width=100) # number of characters to display in the output (dflt = 80)
 ggplot2::theme_set(ggplot2::theme_bw()) # common theme for all graphs
 ```
 
-
-
-```{r set_options, echo=F}
-# cat("Working directory: ", getwd()) # turn on to test the location
-report_render_start_time <- Sys.time()
-# set options shared by all chunks
-knitr::opts_chunk$set(
-  results      = 'show',
-  message      = FALSE,
-  warning      = FALSE,
-  comment      = NA,
-  tidy         = FALSE,
-  # dpi        = 400, # dots per inch,
-  # out.width  = "650px", # pixels, this affects only the markdown, not the underlying png file.  The height will be scaled appropriately.
-  fig.width    = 6, # inches
-  fig.height   = 4, # inches
-  fig.path     = 'figure-png-com/' # where figures are stored
-)
-echo_chunks    <- FALSE #Toggle for debugging.
-message_chunks <- FALSE #Toggle for debugging.
-options(width=100) # number of characters to display in the output (dflt = 80)
-ggplot2::theme_set(ggplot2::theme_bw()) # common theme for all graphs
-```
-
-# Environment
-<!-- Load the sources.  Suppress the output when loading sources. --> 
 ```{r load-sources}
 source("../../scripts/common-functions.R")
 ```
 
-
-<!-- Load packages, or at least verify they're available on the local machine.  Suppress the output when loading packages. -->
-```{r load-packages, message=message_chunks}
+```{r load-packages}
 library(magrittr)  # pipes
 library(dplyr)     # data wrangling
 library(ggplot2)   # graphs
@@ -74,45 +44,94 @@ library(stringr)   # strings
 library(lubridate) # dates
 ```
 
-
-<!-- Load any Global functions and variables declared in the R file.  Suppress the output. --> 
 ```{r declare-globals}
-# custom function for HTML tables
 
 ```
 
+# Scenario
 
+Consider a survey in which a group of respondents are asked the following question (1)
 
-# Data
-```{r load-data, results='show', message=FALSE}
+> Did you have lunch today? (Yes, No)
 
+After an affirmative response, we follow up with the question (2)
+
+> What fruit did you eat with your lunch? (please provide up to 2 answers)
+
+The data from this survey could be organized in the following tibble
+
+```{r results='show', message=FALSE, echo=echo_chunks}
+ds0 <-
+  tibble::tribble(
+    ~id, ~b4, ~b4_response1, ~b4_response2,
+    1,  1 ,  1   ,2  ,
+    2,  2 ,  NA  ,NA ,
+    3,  1 ,  2   ,3  ,
+    4,  1 ,  97  ,-7 ,
+    5,  1 ,  3   ,97 ,
+    6,  1 ,  NA  ,2  ,
+    7, -7 ,  -7  ,-7 ,
+    8,  1 ,  97  ,97 ,
+  ) %>%
+  mutate_all(as.integer)
+ds0 
 ```
+
+Where item `b4` stores response values for Question 1 and `b4_response1` and `b4_response2` store response values for Question 2.
 
 ```{r tweak-data,echo = echo_chunks, results='show', message=message_chunks}
+b4_responses <- c(
+    "1" = "yes"
+  , "2" = "no"
+  ,"-7" = "Q not asked"
+)
+fruit <- c(
+    "1" = "apple"
+  , "2" = "banana"
+  , "3" = "kiwi"
+  ,"97" = "other"
+)
+ds1 <- 
+  ds0 %>% 
+  mutate(
+    b4 = factor(b4,levels=names(b4_responses),labels=b4_responses)
+    ,b4_response1 = factor(b4_response1,levels=names(fruit),labels=fruit)
+    ,b4_response2 = factor(b4_response2,levels=names(fruit),labels=fruit)
+  )
+ds1
 
 ```
 
-# Analysis
+# Problem
 
 ```{r table-1, echo = echo_chunks, results='show', message=message_chunks}
 
 ```
 
+# Solution 1
+
 ```{r graph-1, echo = echo_chunks, results='show', message=message_chunks}
 
 ```
+
+# Solution 2
 
 ```{r graph-2, echo = echo_chunks, results='show', message=message_chunks}
 
 ```
 
-Session Information {#session-info}
-===========================================================================
+# Session Information {#session-info}
 
-For the sake of documentation and reproducibility, the current report was rendered in the following environment.  Click the line below to expand.
+For the sake of documentation and reproducibility, the current report was rendered in the following environment. Click the line below to expand.
 
 <details>
-  <summary>Environment <span class="glyphicon glyphicon-plus-sign"></span></summary>
+
+<summary>
+
+Environment
+
+</summary>
+
 ```{r session-info, echo=FALSE}
 if( requireNamespace("devtools", quietly = TRUE) ) {
   devtools::session_info()
@@ -120,6 +139,7 @@ if( requireNamespace("devtools", quietly = TRUE) ) {
   sessionInfo()
 }
 ```
+
 </details>
 
 ```{r session-duration, echo=FALSE}
@@ -127,4 +147,3 @@ report_render_duration_in_seconds <- round(as.numeric(difftime(Sys.time(), repor
 ```
 
 Report rendered by `r Sys.info()["user"]` at `r strftime(Sys.time(), "%Y-%m-%d, %H:%M %z")` in `r report_render_duration_in_seconds` seconds.
-
