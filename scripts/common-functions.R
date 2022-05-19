@@ -8,20 +8,20 @@ ggplot2::theme_set(
 )
 quick_save <- function(g,name,...){
   ggplot2::ggsave(
-    filename = paste0(name,".jpg"),
+    # filename = paste0(name,".jpg"),
+    filename = paste0(name,".png"),
     plot     = g,
-    device   = "jpg",
+    # device   = "jpg",
+    device   = "png",
     path     = prints_folder,
     # width    = width,
     # height   = height,
     # units = "cm",
-    dpi      = 'retina',
+    # dpi      = 'retina',
     limitsize = FALSE,
     ...
   )
 }
-
-
 # print names and associated lables of variables (if attr(.,"label)) is present
 names_labels <- function(ds){
   dd <- as.data.frame(ds)
